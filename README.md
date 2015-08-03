@@ -1,6 +1,6 @@
-# piOS
+# piOS - Raspberry Pi Operation System
 
-## MTulio's Raspberry Pi project  [Study and Hobby purpose]
+MTulio's Raspberry Pi project  [Study and Hobby purpose]
 
 ```
 [apps]	: Custom Apps
