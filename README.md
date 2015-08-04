@@ -19,3 +19,11 @@ MTulio's Raspberry Pi project  [Study and Hobby purpose]
 
 [tools]		: is a repo cloned from https://github.com/raspberrypi/tools
 ```
+
+
+
+---
+NOTE:
+
+* Using  Google Style Guides to coding: https://github.com/google/styleguide
+

@@ -34,7 +34,7 @@ usage() {
 
 
 #######################################
-# Start script
+# Main - Start script
 # Globals:
 #   None
 # Arguments:
@@ -42,6 +42,9 @@ usage() {
 # Returns:
 #   File .build.cfg
 #######################################
+#TODO(mtulio) : check getopts from 0-toolchain:main() and update here
+#TODO(mtulio) : create kernel build menu, and its function
+#TODO(mtulio) : define envs in .build.cfg
 main() {
   while [ $# -gt 0 ]; do
     case $1 in

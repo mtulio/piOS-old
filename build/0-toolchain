@@ -1,5 +1,15 @@
 #!/bin/bash
-
+#
+# 0-install_toolchain.sh - Script to install Raspberry Pi 
+#	toolchain at directory /tools.
+#       That script depends of gcc and libc in directory 
+#	../tools/arm-bcm2708/ 
+#       Environments wont be exported.
+#
+# author: Marco Tulio R Braga (https://github.com/mtulio/piOS)
+# created: 04 Aug 2015
+# modified: 04 Aug 2015
+#
 #
 # Check if toolchain is in the system, if isn't present install it.
 # '-> Might to be run as root
@@ -7,7 +17,158 @@
 # '-> Create a Sym Link in /tools directory required to build Linux Kernel
 # '-> Create config file
 #
+#######################################
 
-#
-# Created by: Marco Tulio R Braga (https://github.com/mtulio)
-#
+#######################################
+# Show usage script
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   Help message
+#######################################
+usage() {
+  #echo "Help Function $0 : $*"
+  [ "$*" ] && echo " You entered        : $0 $*"
+  #sed -n '/^##/,/^$/s/^## \{0,1\}//p' "$0"
+  echo " Usage          : $0 (-v|--verion=(A|B)) -CMD|--CMD"
+  echo " '-> Available CMD: "
+  echo " '--> -i|--install	: Install toolchain in your system. Might to be run as root or sudo"
+  echo " '--> -e|--export	: Export path of toolchain and cross-compile in your system"
+  exit 2
+} 2>/dev/null
+
+
+#######################################
+# Declare Globals
+readonly TOOL_PATH="${PWD}../tools/arm-bcm2708/"
+readonly PATH_GCC_NAME="gcc-linaro-arm-linux-gnueabihf-raspbian-x64"
+readonly PATH_GCC="/tools/${PATH_GCC_NAME}"
+
+#######################################
+# Show usage script
+# Globals:
+#   TOOL_PATH
+#   PATH_GCC_NAME
+#   PATH_GCC
+# Arguments:
+#   None
+# Returns:
+#   Status message
+#######################################
+cmd_install() {
+
+#TODO(mtulio) : check cross-compiler packages, unpack it - checking sys arch (i386|x64)
+  if [ -L ${PATH_GCC} ]
+  then
+    echo "Cross-compiler is already installed in your system.";
+    return;
+  else
+    test -d /tools || mkdir /tools >/dev/null 2>&1
+    ln -sf ${TOOL_PATH}/${PATH_GCC_NAME} ${PATH_GCC}
+    [ -L ${PATH_GCC} ] \
+      && echo "Cross-compiler installed with success" \
+      || (echo "ERROR installing cross-compiler"; exit 2);
+  fi
+}
+
+
+#######################################
+# Show usage script
+# Globals:
+#   PATH_GCC
+# Arguments:
+#   None
+# Returns:
+#   Exported envs: PATH, CROSS_COMPILE and ARCH
+#   	PATH
+#	CROSS_COMPILE 
+#	ARCH
+#######################################
+cmd_export() {
+
+  if [ ! -L ${PATH_GCC} ]
+  then
+    echo " Toolchain not found, install it."
+    usage;
+  fi
+ 
+   # Exporting GCC
+  export PATH="${PATH}:${PATH_GCC}/bin"
+  export CROSS_COMPILE="arm-linux-gnueabihf-"
+  export ARCH=arm
+}
+
+
+#######################################
+# Main - Start script
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   Exported envs: PATH, CROSS_COMPILE and ARCH
+#   	PATH
+#	CROSS_COMPILE 
+#	ARCH
+#######################################
+main() {
+
+  GET_OPTS=$(getopt -o hiev: --long help,install,export,version: -n "$0" -- "$@")
+  if [ $? != 0 ] ; then usage; exit 2 ; fi
+  eval set -- "${GET_OPTS}"
+
+  FLAG_INSTALL=false
+  FLAG_EXPORT=false
+  while true
+  do
+    case "$1" in
+      -h|--help) usage; shift;;
+      -i|--install) FLAG_INSTALL=true; shift;;
+      -e|--export) FLAG_EXPORT=true; shift;;
+      -v|--version) FLAG_PIVERSION="$2"; shift 2;;
+      -- ) shift; break;;
+      * ) break;;
+    esac
+  done
+
+  if [ -z "${FLAG_PIVERSION}" ] || 
+    ( [ $"${FLAG_PIVERSION}" != "a" ] && [ $"${FLAG_PIVERSION}" != "A" ] && 
+      [ $"${FLAG_PIVERSION}" != "b" ] && [ $"${FLAG_PIVERSION}" != "B" ] && 
+      [ $"${FLAG_PIVERSION}" != "2" ] )
+  then
+    echo "Version '${FLAG_PIVERSION}' not allowed.."
+    usage;
+  else
+    readonly $FLAG_PIVERSION;
+  fi
+
+  if [ "${FLAG_INSTALL}" == true ] && [ "${FLAG_EXPORT}" == false ]; then
+    #cmd_install;
+    echo cmd_install;
+    echo "PI_MODEL=${FLAG_PIVERSION}"
+    echo "FLAG_INSTALL=${FLAG_INSTALL}"
+    echo "FLAG_EXPORT=${FLAG_EXPORT}"
+
+  elif [ "${FLAG_INSTALL}" == false ] && [ "${FLAG_EXPORT}" == true ]; then
+    #cmd_export;
+    echo cmd_export;
+    echo "PI_MODEL=${FLAG_PIVERSION}"
+    echo "FLAG_INSTALL=${FLAG_INSTALL}"
+    echo "FLAG_EXPORT=${FLAG_EXPORT}"
+
+  elif [ "${FLAG_INSTALL}" == true ] && [ "${FLAG_EXPORT}" == true ]; then
+    #cmd_export;
+    #cmd_install;
+    echo cmd_export;
+    echo cmd_install;
+    echo "PI_MODEL=${FLAG_PIVERSION}"
+    echo "FLAG_INSTALL=${FLAG_INSTALL}"
+    echo "FLAG_EXPORT=${FLAG_EXPORT}"
+  else
+    echo "You might to choose one command, see help.";
+    usage;
+  fi
+}
+main $@
