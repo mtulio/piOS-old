@@ -3,11 +3,19 @@
 MTulio's Raspberry Pi project  [Study and Hobby purpose]
 
 ```
-[apps]	: Custom Apps
+[apps]		: Custom apps 
 
-[build]	: Build scripts
+[build]		: Build scripts
 
-[linux]	: is a repo cloned from https://github.com/raspberrypi/linux
+[drivers]	: Device drivers
 
-[tools]	: is a repo cloned from https://github.com/raspberrypi/tools
+[images]	: Images after build process
+
+[linux]		: is a repo cloned from https://github.com/raspberrypi/linux
+
+[scripts]	: General System Scripts
+
+[softwares]	: [Open] Source codes of softwares [to be ported | portable] to Pi
+
+[tools]		: is a repo cloned from https://github.com/raspberrypi/tools
 ```
