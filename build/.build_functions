@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# .build_functions - Define functions to build packages, see  main build script: 2-build
+#
+# author: Marco Tulio R Braga (https://github.com/mtulio/piOS)
+# created: 04 Aug 2015
+# modified: 04 Aug 2015
+#
+#######################################
+
+#######################################
+# Declare Globals
+#TODO(mtulio) : check .build.cfg config file to check what envs to export, packs to build...
+[ ! -f .build.cfg ] && (echo "# Config file not found in $(basename $0). Run 2-configure to fix it."; exit 2)
+readonly TOOL_PATH="$(cat .build.cfg |grep ^'TOOL_PATH=' |awk -F'=' '{print$2}')"
+readonly PATH_GCC_NAME="$(cat .build.cfg |grep ^'PATH_GCC_NAME=' |awk -F'=' '{print$2}')"
+readonly PATH_GCC="$(cat .build.cfg |grep ^'PATH_GCC=' |awk -F'=' '{print$2}')"
+readonly CROSS_COMPILE="$(cat .build.cfg |grep ^'CROSS_COMPILE=' |awk -F'=' '{print$2}')"
+readonly ARCH="$(cat .build.cfg |grep ^'ARCH=' |awk -F'=' '{print$2}')"
+readonly BOARD_VERSION="$(cat .build.cfg |grep ^'BOARD_VERSION=' |awk -F'=' '{print$2}')"
+
+
+#######################################
+# Build Linux Kernel
+# Globals:
+#   ARCH
+#   CROSS_COMPILE
+#   BOARD_VERSION
+# Arguments:
+#   None
+# Returns:
+#  Kernel Cross-comiled : zImage
+#######################################
+build_kernel() {
+        cd ${PWD}../linux
+
+        # Config kernel for Pi2
+        KERNEL=kernel7
+        make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} bcm2709_defconfig
+
+        # Build it
+        NCPU="4"
+        make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} zImage modules dtbs -j${NCPU}
+
+}
+#fc_build_kernel
+
+
+#######################################
+# Build App: mtapp01
+# Globals:
+#   CROSS_COMPILE
+# Arguments:
+#   None
+# Returns:
+#  Binary(ies) : mtapp01
+#######################################
+fc_build_app_mtulio01() {
+        OPWD="${PWD}"
+        PATH_APPS="${PWD}../apps"
+        cd ${PATH_APPS}/mtulio01
+        make CROSS_COMPILE=${CROSS_COMPILE}
+
+
+        cd ${OPWD}
+}
+#fc_build_app_mtulio01

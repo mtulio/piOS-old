@@ -1,0 +1,58 @@
+#!/bin/bash
+#
+# 1-configure - Script to configure build process. Here
+#	you could enable flags, features, etc
+#	Configuration file will be saved in .build.cfg
+#
+# author: Marco Tulio R Braga (https://github.com/mtulio/piOS)
+# created: 04 Aug 2015
+# modified: 04 Aug 2015
+#
+#######################################
+
+#######################################
+# Show usage script
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   Help message
+#######################################
+usage() {
+  #echo "Help Function $0 : $*"
+  [ "$*" ] && echo " You entered	: $0 $*"
+  #sed -n '/^##/,/^$/s/^## \{0,1\}//p' "$0"
+  echo " Usage		: $0 --FLAG=OPTIONS --enable-FEATURE"
+  echo " '-> Available FLAGS and OPTIONS: "
+  echo " '--> --version=[A|B] : Version of your Raspberry Pi"
+  echo " '"
+  echo " '-> Available FEATURE: "
+  echo " '--> --enable-gui : Enable Linux X Window XFCE"
+  exit 2
+} 2>/dev/null
+
+
+#######################################
+# Start script
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   File .build.cfg
+#######################################
+main() {
+  while [ $# -gt 0 ]; do
+    case $1 in
+      (-n) DRY_RUN=1;;
+      (-h|--help) usage $@ 2>&1;;
+      (--) shift; break;;
+      (-*) usage "$1: unknown option";;
+      (*) break;;
+    esac
+  done
+  : do stuff.
+}
+
+main $@;
