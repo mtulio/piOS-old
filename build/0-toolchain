@@ -42,12 +42,15 @@ usage() {
 
 #######################################
 # Declare Globals
-readonly TOOL_PATH="${PWD}../tools/arm-bcm2708/"
-readonly PATH_GCC_NAME="gcc-linaro-arm-linux-gnueabihf-raspbian-x64"
-readonly PATH_GCC="/tools/${PATH_GCC_NAME}"
+readonly TOOL_PATH="${PWD}/../tools/arm-bcm2708"
+readonly DIRNAME_GCC_32="gcc-linaro-arm-linux-gnueabihf-raspbian"
+readonly DIRNAME_GCC_64="gcc-linaro-arm-linux-gnueabihf-raspbian-x64"
+readonly HWPLAT="$(uname -i)"
+if [ "${HWPLAT}" == "x86_64" ]; then readonly DIRNAME_GCC_PLAT="${DIRNAME_GCC_64}"; else readonly DIRNAME_GCC_PLAT="${DIRNAME_GCC_32}"; fi
+readonly PATH_GCC="/tools/${DIRNAME_GCC_PLAT}"
 
 #######################################
-# Show usage script
+# Install toolchain
 # Globals:
 #   TOOL_PATH
 #   PATH_GCC_NAME
@@ -55,27 +58,45 @@ readonly PATH_GCC="/tools/${PATH_GCC_NAME}"
 # Arguments:
 #   None
 # Returns:
-#   Status message
+#   None
 #######################################
 cmd_install() {
 
-#TODO(mtulio) : check cross-compiler packages, unpack it - checking sys arch (i386|x64)
   if [ -L ${PATH_GCC} ]
   then
-    echo "Cross-compiler is already installed in your system.";
+    echo " #% ERROR - Cross-compiler is already installed in your system.";
     return;
   else
-    test -d /tools || mkdir /tools >/dev/null 2>&1
-    ln -sf ${TOOL_PATH}/${PATH_GCC_NAME} ${PATH_GCC}
-    [ -L ${PATH_GCC} ] \
-      && echo "Cross-compiler installed with success" \
-      || (echo "ERROR installing cross-compiler"; exit 2);
+
+    if [ ! -d ${TOOL_PATH}/${DIRNAME_GCC_PLAT} ]; then
+      #mkdir ${TOOL_PATH}/${DIRNAME_GCC_PLAT} 1>/dev/null 2>&1
+      mkdir ${TOOL_PATH}/${DIRNAME_GCC_PLAT} 
+      echo " #% Criando diretório [${TOOL_PATH}/${DIRNAME_GCC_PLAT}] [$?] [${HWPLAT}]"
+      tar xfj ${TOOL_PATH}/${DIRNAME_GCC_PLAT}.tbz -C ${TOOL_PATH}/${DIRNAME_GCC_PLAT}
+      echo " #% Unpack [${TOOL_PATH}/${DIRNAME_GCC_PLAT}].tbz [$?].";
+    fi
+
+
+#TODO(mtulio) : improve the ceation of /tool directory (with root permissions)
+    if [ ! -d /tools ] ;then
+      #sudo mkdir /tools >/dev/null 2>&1 
+      mkdir /tools >/dev/null 2>&1 
+      test -d /tools || (echo " #% ERROR - creating /tools directory, do you have permission?"; exit 99);
+    fi
+
+    ln -sf ${TOOL_PATH}/${DIRNAME_GCC_PLAT} ${PATH_GCC}
+    if [ -L ${PATH_GCC} ]; then
+      echo "Cross-compiler installed with success"
+    else
+      echo " #% ERROR - installing cross-compiler [Creating symbolic link at /tools";
+      exit 2
+    fi
   fi
 }
 
 
 #######################################
-# Show usage script
+# Export GCC (cross-compile)
 # Globals:
 #   PATH_GCC
 # Arguments:
@@ -90,14 +111,16 @@ cmd_export() {
 
   if [ ! -L ${PATH_GCC} ]
   then
-    echo " Toolchain not found, install it."
+    echo " #% ERROR - Toolchain not found, install it."
     usage;
   fi
  
-   # Exporting GCC
   export PATH="${PATH}:${PATH_GCC}/bin"
   export CROSS_COMPILE="arm-linux-gnueabihf-"
   export ARCH=arm
+
+  echo "${CROSS_COMPILE}"
+
 }
 
 
@@ -128,46 +151,50 @@ main() {
       -i|--install) FLAG_INSTALL=true; shift;;
       -e|--export) FLAG_EXPORT=true; shift;;
       -v|--version) FLAG_PIVERSION="$2"; shift 2;;
+      -b|--board) FLAG_PIBOARD="$2"; shift 2;;
       -- ) shift; break;;
       * ) break;;
     esac
   done
 
   if [ -z "${FLAG_PIVERSION}" ] || 
-    ( [ $"${FLAG_PIVERSION}" != "a" ] && [ $"${FLAG_PIVERSION}" != "A" ] && 
-      [ $"${FLAG_PIVERSION}" != "b" ] && [ $"${FLAG_PIVERSION}" != "B" ] && 
-      [ $"${FLAG_PIVERSION}" != "2" ] )
+    ( [ "${FLAG_PIVERSION}" != "a" ] && [ "${FLAG_PIVERSION}" != "A" ] && 
+      [ "${FLAG_PIVERSION}" != "b" ] && [ "${FLAG_PIVERSION}" != "B" ] && 
+      [ "${FLAG_PIVERSION}" != "2" ] );
   then
-    echo "Version '${FLAG_PIVERSION}' not allowed.."
-    usage;
-  else
-    readonly $FLAG_PIVERSION;
+    if [ -z ${FLAG_PIVERSION} ]; then
+      echo " #% ERROR - Pi Version not found."
+      usage;
+    else 
+      echo " #% ERROR - Version '${FLAG_PIVERSION}' is not allowed."
+      usage;
+    fi
   fi
 
   if [ "${FLAG_INSTALL}" == true ] && [ "${FLAG_EXPORT}" == false ]; then
-    #cmd_install;
-    echo cmd_install;
-    echo "PI_MODEL=${FLAG_PIVERSION}"
-    echo "FLAG_INSTALL=${FLAG_INSTALL}"
-    echo "FLAG_EXPORT=${FLAG_EXPORT}"
+    cmd_install;
+    #echo cmd_install;
+    #echo "PI_MODEL=${FLAG_PIVERSION}"
+    #echo "FLAG_INSTALL=${FLAG_INSTALL}"
+    #echo "FLAG_EXPORT=${FLAG_EXPORT}"
 
   elif [ "${FLAG_INSTALL}" == false ] && [ "${FLAG_EXPORT}" == true ]; then
-    #cmd_export;
-    echo cmd_export;
-    echo "PI_MODEL=${FLAG_PIVERSION}"
-    echo "FLAG_INSTALL=${FLAG_INSTALL}"
-    echo "FLAG_EXPORT=${FLAG_EXPORT}"
+    cmd_export;
+    #echo cmd_export;
+    #echo "PI_MODEL=${FLAG_PIVERSION}"
+    #echo "FLAG_INSTALL=${FLAG_INSTALL}"
+    #echo "FLAG_EXPORT=${FLAG_EXPORT}"
 
   elif [ "${FLAG_INSTALL}" == true ] && [ "${FLAG_EXPORT}" == true ]; then
-    #cmd_export;
-    #cmd_install;
-    echo cmd_export;
-    echo cmd_install;
-    echo "PI_MODEL=${FLAG_PIVERSION}"
-    echo "FLAG_INSTALL=${FLAG_INSTALL}"
-    echo "FLAG_EXPORT=${FLAG_EXPORT}"
+    cmd_export;
+    cmd_install;
+    #echo cmd_export;
+    #echo cmd_install;
+    #echo "PI_MODEL=${FLAG_PIVERSION}"
+    #echo "FLAG_INSTALL=${FLAG_INSTALL}"
+    #echo "FLAG_EXPORT=${FLAG_EXPORT}"
   else
-    echo "You might to choose one command, see help.";
+    echo " #%ERROR - You might to choose one command, see help.";
     usage;
   fi
 }

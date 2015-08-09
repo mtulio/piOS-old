@@ -42,20 +42,27 @@ usage() {
 # Returns:
 #   File .build.cfg
 #######################################
-#TODO(mtulio) : check getopts from 0-toolchain:main() and update here
 #TODO(mtulio) : create kernel build menu, and its function
 #TODO(mtulio) : define envs in .build.cfg
 main() {
-  while [ $# -gt 0 ]; do
-    case $1 in
-      (-n) DRY_RUN=1;;
-      (-h|--help) usage $@ 2>&1;;
-      (--) shift; break;;
-      (-*) usage "$1: unknown option";;
-      (*) break;;
+
+  GET_OPTS=$(getopt -o hiev: --long help,install,export,version: -n "$0" -- "$@")
+  if [ $? != 0 ] ; then usage; exit 2 ; fi
+  eval set -- "${GET_OPTS}"
+
+  FLAG_INSTALL=false
+  FLAG_EXPORT=false
+  while true
+  do
+    case "$1" in
+      -h|--help) usage; shift;;
+      -k|--enable-kernel) FLAG_BKERNEL=true; shift;;
+      -a|--enable-app01) FLAG_BAPP01=true; shift;;
+      -b|--board) FLAG_PIBOARD="$2"; shift 2;;
+      -- ) shift; break;;
+      * ) break;;
     esac
   done
-  : do stuff.
 }
 
 main $@;
