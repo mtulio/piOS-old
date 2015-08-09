@@ -18,7 +18,7 @@ APP_MTAPP01:
 	@echo "Building app..."
 	@$(CC) ${CFLAGS} -o mtapp01 $(OBJECTS) 
 	@$(STRIP) mtapp01
-	@echo "Finish!"
+	@echo "Finish! See binary 'mtapp01'"
 
 clean:
 	@rm -f *.o 
