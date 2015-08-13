@@ -6,7 +6,7 @@
 #
 # author: Marco Tulio R Braga (https://github.com/mtulio/piOS)
 # created: 04 Aug 2015
-# modified: 04 Aug 2015
+# modified: 13 Aug 2015
 #
 #######################################
 
@@ -40,7 +40,6 @@ usage() {
 GLOBAL_CONFIG=".build.cfg"
 
 
-
 #######################################
 # Create config file
 # Globals:
@@ -61,10 +60,18 @@ create_config() {
 	[ "${FLAG_PIBOARD}" == "B+" ] || [ "${FLAG_PIBOARD}" == "b+" ] ||
 	[ "${FLAG_PIBOARD}" == "2" ] 
   else
-    RPI_BOARD="${FLAG_PIBOARD}" >> ${GLOBAL_CONFIG};
+
+    if [ "${FLAG_PIBOARD}" == "2" ]
+    then
+      echo "KERNEL=kernel7" >> ${GLOBAL_CONFIG};
+    else
+      echo "KERNEL=kernel" >> ${GLOBAL_CONFIG};  # Right?!
+    fi
+
+    echo "RPI_BOARD=${FLAG_PIBOARD}" >> ${GLOBAL_CONFIG};
   fi
 
-  if [ ${FLAG_KBKERNEL} == "true" ]; then echo "ENABLE_BKERNEL=true" >> ${GLOBAL_CONFIG} fi
+  if [ ${FLAG_BKERNEL} == "true" ]; then echo "ENABLE_BKERNEL=true" >> ${GLOBAL_CONFIG} fi
   if [ ${FLAG_BAPP01} == "true" ]; then echo "FLAG_BAPP01=true" >> ${GLOBAL_CONFIG} fi
 
 }

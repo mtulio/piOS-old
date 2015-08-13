@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# 2-build - Build packages from this repo,  options chosen at step 1-configure 
+# 3-create_image - Create an image to burn in Rpi 
 #
 # author: Marco Tulio R Braga (https://github.com/mtulio/piOS)
-# created: 04 Aug 2015
+# created: 13 Aug 2015
 # modified: 13 Aug 2015
 #
 #######################################
@@ -34,78 +34,42 @@ GLOBAL_CONFIG=".build.cfg"
 
 [ ! -f ${GLOBAL_CONFIG} ] && (echo "# Config file not found in $(basename $0). Run 2-configure to fix it."; exit 2)
 
-#readonly TOOL_PATH="$(grep ^'TOOL_PATH=' .build.cfg |awk -F'=' '{print$2}')"
-#readonly PATH_GCC_NAME="$(grep ^'PATH_GCC_NAME=' .build.cfg |awk -F'=' '{print$2}')"
-#readonly PATH_GCC="$(grep ^'PATH_GCC=' .build.cfg |awk -F'=' '{print$2}')"
-#readonly CROSS_COMPILE="$(grep ^'CROSS_COMPILE=' .build.cfg |awk -F'=' '{print$2}')"
-#readonly ARCH="$(grep ^'ARCH=' .build.cfg |awk -F'=' '{print$2}')"
 source . ./${GLOBAL_CONFIG}
 
 
 #######################################
-# Show usage script
+# Copy files to build directory
 # Globals:
-#   PATH
-#   CROSS_COMPILE
-#   ARCH
-#   KERNEL
+#   None
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
-# TODO(mtulio) : standardize these functions
-
-#PATH="${PATH}:${PATH_GCC}/bin"
-#CROSS_COMPILE="arm-linux-gnueabihf-"
-#ARCH=arm
-
-build_kernel_clean() {
-  make clean && make distclean
-}
-
-
-# Globals : KERNEL
-build_kernel_config() {
-
-  # Config kernel for Pi2
-  #KERNEL=kernel7
-  make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} bcm2709_defconfig
-}
-
-
-# Globals : ARCH CROSS_COMPILE 
-build_kernel() {
+img_copy_fiiles() {
   OPWD=${PWD}
+  cd ${PWD}/buildRoot.tmp
 
-  cd ${PWD}../linux
-  
-  # User all cpus
-  NCPU="$(grep ^processor /proc/cpuinfo |wc -l)" 
-
-  # Make it
-  make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} zImage modules dtbs -j${NCPU}
+  #TODO (mtulio) : copy all files to an build directory - Error if an dependencie was not built
 
   cd ${OPWD}
 }
 
 
 #######################################
-# Build App : mtapp01
+# Create image to burn in Pi
 # Globals:
 #   None
 # Arguments:
 #   None
 # Returns:
-#   Help message
+#   None
 #######################################
-# TODO(mtulio) : test it
-build_app_mtapp01() {
+img_create() {
   OPWD=${PWD}
-  cd ${PWD}/../apps/mtapp01
+  cd ${PWD}/buildRoot.tmp
 
-  make clean
-  make 
+  #TODO (mtulio) : Enter in build directory and create piOS image
     
   cd ${OPWD}
 }
@@ -123,8 +87,8 @@ build_app_mtapp01() {
 #TODO(mtulio) : create kernel build menu, and its function
 main() {
 
-  if [ "${FLAG_KBKERNEL}" == "true"  ]; then build_kernel; fi
-  if [ "${FLAG_BAPP01}" == "true"  ]; then build_app_mtapp01; fi
+  img_copy_fiiles;
+  img_create;
  
 }
 
