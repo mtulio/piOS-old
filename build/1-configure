@@ -34,6 +34,43 @@ usage() {
 
 
 #######################################
+# Declare Globals
+#TODO(mtulio) : check .build.cfg config file to check what envs to export, packs to build...
+
+GLOBAL_CONFIG=".build.cfg"
+
+
+
+#######################################
+# Main - Start script
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   File .build.cfg
+#######################################
+create_config() {
+
+  echo "# Do not change this file. Automatic created with script 1-configure" > ${GLOBAL_CONFIG}
+
+  if [ "${FLAG_PIBOARD}" == "A" ] || [ "${FLAG_PIBOARD}" == "a" ] ||
+	[ "${FLAG_PIBOARD}" == "A+" ] || [ "${FLAG_PIBOARD}" == "a+" ] ||
+	[ "${FLAG_PIBOARD}" == "A" ] || [ "${FLAG_PIBOARD}" == "a" ] ||
+	[ "${FLAG_PIBOARD}" == "B" ] || [ "${FLAG_PIBOARD}" == "b" ] ||
+	[ "${FLAG_PIBOARD}" == "B+" ] || [ "${FLAG_PIBOARD}" == "b+" ] ||
+	[ "${FLAG_PIBOARD}" == "2" ] 
+  else
+    RPI_BOARD="${FLAG_PIBOARD}" >> ${GLOBAL_CONFIG};
+  fi
+
+  if [ ${FLAG_KBKERNEL} == "true" ]; then echo "ENABLE_BKERNEL=true" >> ${GLOBAL_CONFIG} fi
+  if [ ${FLAG_BAPP01} == "true" ]; then echo "FLAG_BAPP01=true" >> ${GLOBAL_CONFIG} fi
+
+}
+
+
+#######################################
 # Main - Start script
 # Globals:
 #   None
@@ -43,7 +80,6 @@ usage() {
 #   File .build.cfg
 #######################################
 #TODO(mtulio) : create kernel build menu, and its function
-#TODO(mtulio) : define envs in .build.cfg
 main() {
 
   GET_OPTS=$(getopt -o hiev: --long help,install,export,version: -n "$0" -- "$@")
@@ -63,6 +99,8 @@ main() {
       * ) break;;
     esac
   done
+
+  create_config;
 }
 
 main $@;

@@ -30,7 +30,9 @@ usage() {
 # Declare Globals
 #TODO(mtulio) : check .build.cfg config file to check what envs to export, packs to build...
 
-[ ! -f .build.cfg ] && (echo "# Config file not found in $(basename $0). Run 2-configure to fix it."; exit 2)
+GLOBAL_CONFIG=".build.cfg"
+
+[ ! -f ${GLOBAL_CONFIG} ] && (echo "# Config file not found in $(basename $0). Run 2-configure to fix it."; exit 2)
 readonly TOOL_PATH="$(grep ^'TOOL_PATH=' .build.cfg |awk -F'=' '{print$2}')"
 readonly PATH_GCC_NAME="$(grep ^'PATH_GCC_NAME=' .build.cfg |awk -F'=' '{print$2}')"
 readonly PATH_GCC="$(grep ^'PATH_GCC=' .build.cfg |awk -F'=' '{print$2}')"
