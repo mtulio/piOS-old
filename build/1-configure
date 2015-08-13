@@ -42,7 +42,7 @@ GLOBAL_CONFIG=".build.cfg"
 
 
 #######################################
-# Main - Start script
+# Create config file
 # Globals:
 #   None
 # Arguments:

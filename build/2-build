@@ -43,4 +43,47 @@ source . ./${GLOBAL_CONFIG}
 
 
 #######################################
-#TODO(mtulio) : Create main function, reading config file and running external functions to build (defined in .build_functions
+# Show usage script
+# Globals:
+#   PATH
+#   CROSS_COMPILE
+#   ARCH
+#   KERNEL
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+
+#PATH="${PATH}:${PATH_GCC}/bin"
+#CROSS_COMPILE="arm-linux-gnueabihf-"
+#ARCH=arm
+
+build_kernel_clean() {
+  make clean && make distclean
+}
+
+
+# Globals : KERNEL
+build_kernel_config() {
+
+  # Config kernel for Pi2
+  #KERNEL=kernel7
+  make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} bcm2709_defconfig
+}
+
+
+# Globals : ARCH CROSS_COMPILE 
+build_kernel() {
+
+  cd ${PWD}../linux
+  
+  # User all cpus
+  NCPU="$(grep ^processor /proc/cpuinfo |wc -l)" 
+
+  # Make it
+  make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} zImage modules dtbs -j${NCPU}
+}
+
+
+
