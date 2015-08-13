@@ -33,11 +33,13 @@ usage() {
 GLOBAL_CONFIG=".build.cfg"
 
 [ ! -f ${GLOBAL_CONFIG} ] && (echo "# Config file not found in $(basename $0). Run 2-configure to fix it."; exit 2)
-readonly TOOL_PATH="$(grep ^'TOOL_PATH=' .build.cfg |awk -F'=' '{print$2}')"
-readonly PATH_GCC_NAME="$(grep ^'PATH_GCC_NAME=' .build.cfg |awk -F'=' '{print$2}')"
-readonly PATH_GCC="$(grep ^'PATH_GCC=' .build.cfg |awk -F'=' '{print$2}')"
-readonly CROSS_COMPILE="$(grep ^'CROSS_COMPILE=' .build.cfg |awk -F'=' '{print$2}')"
-readonly ARCH="$(grep ^'ARCH=' .build.cfg |awk -F'=' '{print$2}')"
+
+#readonly TOOL_PATH="$(grep ^'TOOL_PATH=' .build.cfg |awk -F'=' '{print$2}')"
+#readonly PATH_GCC_NAME="$(grep ^'PATH_GCC_NAME=' .build.cfg |awk -F'=' '{print$2}')"
+#readonly PATH_GCC="$(grep ^'PATH_GCC=' .build.cfg |awk -F'=' '{print$2}')"
+#readonly CROSS_COMPILE="$(grep ^'CROSS_COMPILE=' .build.cfg |awk -F'=' '{print$2}')"
+#readonly ARCH="$(grep ^'ARCH=' .build.cfg |awk -F'=' '{print$2}')"
+source . ./${GLOBAL_CONFIG}
 
 
 #######################################
