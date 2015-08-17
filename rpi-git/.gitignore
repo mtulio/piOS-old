@@ -1,0 +1,8 @@
+# Excluding RaspberryPi repository:
+documentation
+firmware
+linux
+noobs
+target_fs
+tools
+userland
